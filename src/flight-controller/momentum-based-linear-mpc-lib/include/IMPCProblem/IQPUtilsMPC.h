@@ -19,7 +19,8 @@ public:
     IQPConstraintMPCDynamic(const unsigned int nVar,
                             const unsigned int nStates,
                             const unsigned int nInput,
-                            const unsigned int nIter);
+                            const unsigned int nIter,
+                            const unsigned int startIdx = 0);
 
     virtual ~IQPConstraintMPCDynamic() = default;
 
@@ -40,6 +41,7 @@ protected:
     double m_nStates;
     double m_nInput;
     double m_nIter;
+    int m_startIdx;
 };
 
 class IQPConstraintInitialState : public IQPConstraint

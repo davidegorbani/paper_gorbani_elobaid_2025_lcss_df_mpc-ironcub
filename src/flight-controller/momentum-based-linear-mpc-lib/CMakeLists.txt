@@ -14,7 +14,12 @@ set(MPC_LIBRARY_HDR include/IMPCProblem/IQPUtilsMPC.h
 					include/dataFusedMPC/dataFusedMPC.h
 					include/dataFusedMPC/costsDFMPC.h
 					include/dataFusedMPC/constraintsDFMPC.h
-					include/dataFusedMPC/systemDynamicsDFMPC.h)
+					include/dataFusedMPC/systemDynamicsDFMPC.h
+					include/dataDrivenMPC/dataDrivenMPC.h
+					include/dataDrivenMPC/costsDDMPC.h
+					include/dataDrivenMPC/constraintsDDMPC.h
+					include/dataDrivenMPC/systemDynamicsDDMPC.h
+					include/dataDrivenMPC/DDconstant.h)
 
 set(MPC_LIBRARY_SRC src/IMPCProblem/IQPUtilsMPC.cpp
 					src/IMPCProblem/IMPCProblem.cpp
@@ -26,7 +31,11 @@ set(MPC_LIBRARY_SRC src/IMPCProblem/IQPUtilsMPC.cpp
 					src/dataFusedMPC/dataFusedMPC.cpp
 					src/dataFusedMPC/costsDFMPC.cpp
 					src/dataFusedMPC/constraintsDFMPC.cpp
-					src/dataFusedMPC/systemDynamicsDFMPC.cpp)
+					src/dataFusedMPC/systemDynamicsDFMPC.cpp
+					src/dataDrivenMPC/dataDrivenMPC.cpp
+					src/dataDrivenMPC/costsDDMPC.cpp
+					src/dataDrivenMPC/constraintsDDMPC.cpp
+					src/dataDrivenMPC/systemDynamicsDDMPC.cpp)
 
 add_library(${LIBRARY_TARGET_NAME} ${MPC_LIBRARY_HDR} ${MPC_LIBRARY_SRC})
 

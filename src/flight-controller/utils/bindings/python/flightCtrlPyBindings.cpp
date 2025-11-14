@@ -256,8 +256,15 @@ PYBIND11_MODULE(bindings, m)
                      = std::make_shared<BipedalLocomotion::YarpUtilities::VectorsCollectionServer>();
                  self.setVectorsCollectionServer(vectorsCollectionServer);
              })
+        .def("setEmptyJetModel",
+             [](QPInput& self) {
+                 std::shared_ptr<JetModel> jetModel = std::make_shared<JetModel>();
+                 self.setJetModel(jetModel);
+             })
         .def("getRPYReference", &QPInput::getRPYReference)
-        .def("getPosCoMReference", &QPInput::getPosCoMReference);
+        .def("getPosCoMReference", &QPInput::getPosCoMReference)
+        .def("getUpdateThrottle", &QPInput::getUpdateThrottle)
+        .def("setUpdateThrottle", &QPInput::setUpdateThrottle);
 
     /************************************************************************/
     /*********************** Mathematics related class **********************/

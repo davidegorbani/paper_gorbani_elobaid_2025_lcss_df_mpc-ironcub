@@ -3,12 +3,14 @@
 IQPConstraintMPCDynamic::IQPConstraintMPCDynamic(const unsigned int nVar,
                                                  const unsigned int nStates,
                                                  const unsigned int nInput,
-                                                 const unsigned int nIter)
+                                                 const unsigned int nIter,
+                                                 const unsigned int startIdx)
     : IQPConstraint(nVar, (nStates)*nIter)
 {
     m_nStates = nStates;
     m_nInput = nInput;
     m_nIter = nIter;
+    m_startIdx = startIdx;
     this->configureSizeDynamicsMatrices();
 }
 
@@ -41,11 +43,11 @@ const bool IQPConstraintMPCDynamic::computeConstraintsMatrixAndBounds(QPInput& q
     m_upperBound.setZero();
     for (int i = 0; i < m_nIter; i++)
     {
-        m_linearMatrix.block(i * m_nStates, i * m_nStates, m_nStates, m_nStates) = m_A;
-        m_linearMatrix.block(i * m_nStates, (i + 1) * m_nStates, m_nStates, m_nStates)
+        m_linearMatrix.block(i * m_nStates, m_startIdx + i * m_nStates, m_nStates, m_nStates) = m_A;
+        m_linearMatrix.block(i * m_nStates, m_startIdx + (i + 1) * m_nStates, m_nStates, m_nStates)
             = -Eigen::MatrixXd::Identity(m_nStates, m_nStates);
         m_linearMatrix.block(i * m_nStates,
-                             m_nStates * (m_nIter + 1) + i * m_nInput,
+                             m_startIdx + m_nStates * (m_nIter + 1) + i * m_nInput,
                              m_nStates,
                              m_nInput)
             = m_B;

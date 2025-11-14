@@ -5,13 +5,15 @@ set(FLIGHT_CONTROLLER_LIBRARIES src/FlightControlUtils.cpp
                                 src/IQPCost.cpp
                                 src/IQPConstraint.cpp
                                 src/QPInput.cpp
-                                src/TrajectoryManager.cpp)
+                                src/TrajectoryManager.cpp
+                                src/JetModel.cpp)
 set(FLIGHT_CONTROLLER_LIBRARIES_HDR include/FlightControlUtils.h
                                 include/Robot.h
                                 include/IQPCost.h
                                 include/IQPConstraint.h
                                 include/QPInput.h
-                                include/TrajectoryManager.h)
+                                include/TrajectoryManager.h
+                                include/JetModel.h)
                                 
 # print FLIGHT_CONTROLLER_LIBRARIES
 message(STATUS "FLIGHT_CONTROLLER_LIBRARIES: ${FLIGHT_CONTROLLER_LIBRARIES}")
