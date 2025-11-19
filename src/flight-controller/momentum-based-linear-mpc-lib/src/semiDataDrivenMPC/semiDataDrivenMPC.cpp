@@ -1,10 +1,10 @@
 #include <FlightControlUtils.h>
-#include <dataDrivenMPC/DDconstant.h>
-#include <dataDrivenMPC/constraintsDDMPC.h>
-#include <dataDrivenMPC/costsDDMPC.h>
-#include <dataDrivenMPC/dataDrivenMPC.h>
+#include <semiDataDrivenMPC/DDconstant.h>
+#include <semiDataDrivenMPC/constraintsDDMPC.h>
+#include <semiDataDrivenMPC/costsDDMPC.h>
+#include <semiDataDrivenMPC/semiDataDrivenMPC.h>
 
-const bool DataDrivenMPC::setCostAndConstraints(
+const bool SemiDataDrivenMPC::setCostAndConstraints(
     std::weak_ptr<BipedalLocomotion::ParametersHandler::IParametersHandler> parametersHandler,
     QPInput& qpInput)
 {
@@ -51,7 +51,7 @@ const bool DataDrivenMPC::setCostAndConstraints(
     m_robot = qpInput.getRobot();
     m_nJets = m_robot->getNJets();
     m_jetModel = qpInput.getJetModel();
-    m_nStates = angMomIdx[2] + 1;
+    m_nStates = rpyErrorIdx[2] + 1;
     m_nInput = m_nCtrlJoints + m_nJets;
     int gParamNumber = m_inputData[0].size() - m_horizonLenghtHankleMatrix;
     // thurst hat is the thrust coming from the second order model
@@ -165,13 +165,11 @@ const bool DataDrivenMPC::setCostAndConstraints(
                                                            m_nCtrlJoints,
                                                            m_nIter,
                                                            m_ctrlHorizon));
-    // m_vectorConstraints.emplace_back(
-    //     std::make_unique<DDMPC::ThrustContraintDD>(m_nVar,
-    //                                                m_nStates,
-    //                                                m_nIter,
-    //                                                m_nIterSmall,
-    //                                                m_ctrlHorizon,
-    //                                                thrustHatInitPosition));
+    m_vectorConstraints.emplace_back(std::make_unique<DDMPC::ThrustContraintDD>(m_nVar,
+                                                                                m_nStates,
+                                                                                m_nIter,
+                                                                                m_nIterSmall,
+                                                                                m_ctrlHorizon));
     m_vectorConstraints.emplace_back(
         std::make_unique<DDMPC::HankleMatrixConstraint>(m_nVar,
                                                         m_nStates,
@@ -207,7 +205,7 @@ const bool DataDrivenMPC::setCostAndConstraints(
     return true;
 }
 
-const bool DataDrivenMPC::solveMPC()
+const bool SemiDataDrivenMPC::solveMPC()
 {
     this->solve();
     if (this->getQPProblemStatus() == OsqpEigen::Status::Solved)
@@ -235,7 +233,7 @@ const bool DataDrivenMPC::solveMPC()
     return true;
 }
 
-const double DataDrivenMPC::getValueFunction()
+const double SemiDataDrivenMPC::getValueFunction()
 {
     if (this->getQPProblemStatus() == OsqpEigen::Status::Solved)
     {
@@ -248,8 +246,8 @@ const double DataDrivenMPC::getValueFunction()
     }
 }
 
-const bool DataDrivenMPC::setHankleMatrices(const std::vector<std::vector<double>>& inputData,
-                                            const std::vector<std::vector<double>>& outputData)
+const bool SemiDataDrivenMPC::setHankleMatrices(const std::vector<std::vector<double>>& inputData,
+                                                const std::vector<std::vector<double>>& outputData)
 {
     m_hankleMatrixSet = true;
     if ((inputData.size() != N_THRUSTS) || (outputData.size() != N_THRUSTS))
@@ -264,7 +262,7 @@ const bool DataDrivenMPC::setHankleMatrices(const std::vector<std::vector<double
     return true;
 }
 
-const bool DataDrivenMPC::getMPCSolution(Eigen::Ref<Eigen::VectorXd> qpSolution)
+const bool SemiDataDrivenMPC::getMPCSolution(Eigen::Ref<Eigen::VectorXd> qpSolution)
 {
     if (qpSolution.size() != m_nInput)
     {
@@ -275,7 +273,7 @@ const bool DataDrivenMPC::getMPCSolution(Eigen::Ref<Eigen::VectorXd> qpSolution)
     return true;
 }
 
-const bool DataDrivenMPC::getJointsReferencePosition(Eigen::Ref<Eigen::VectorXd> jointsPosition)
+const bool SemiDataDrivenMPC::getJointsReferencePosition(Eigen::Ref<Eigen::VectorXd> jointsPosition)
 {
     if (jointsPosition.size() != m_robot->getNJoints())
     {
@@ -288,7 +286,7 @@ const bool DataDrivenMPC::getJointsReferencePosition(Eigen::Ref<Eigen::VectorXd>
     return true;
 }
 
-const bool DataDrivenMPC::getThrottleReference(Eigen::Ref<Eigen::VectorXd> throttle)
+const bool SemiDataDrivenMPC::getThrottleReference(Eigen::Ref<Eigen::VectorXd> throttle)
 {
     if (throttle.size() != m_nJets)
     {
@@ -304,7 +302,7 @@ const bool DataDrivenMPC::getThrottleReference(Eigen::Ref<Eigen::VectorXd> throt
     return true;
 }
 
-const bool DataDrivenMPC::getThrustReference(Eigen::Ref<Eigen::VectorXd> thrust)
+const bool SemiDataDrivenMPC::getThrustReference(Eigen::Ref<Eigen::VectorXd> thrust)
 {
     if (thrust.size() != m_nJets)
     {
@@ -319,7 +317,7 @@ const bool DataDrivenMPC::getThrustReference(Eigen::Ref<Eigen::VectorXd> thrust)
     return true;
 }
 
-const bool DataDrivenMPC::getFinalCoMPosition(Eigen::Ref<Eigen::VectorXd> finalCoMPosition)
+const bool SemiDataDrivenMPC::getFinalCoMPosition(Eigen::Ref<Eigen::VectorXd> finalCoMPosition)
 {
     if (finalCoMPosition.size() != 3)
     {
@@ -331,7 +329,7 @@ const bool DataDrivenMPC::getFinalCoMPosition(Eigen::Ref<Eigen::VectorXd> finalC
     return true;
 }
 
-const bool DataDrivenMPC::getFinalLinMom(Eigen::Ref<Eigen::VectorXd> finalLinMom)
+const bool SemiDataDrivenMPC::getFinalLinMom(Eigen::Ref<Eigen::VectorXd> finalLinMom)
 {
     if (finalLinMom.size() != 3)
     {
@@ -342,7 +340,7 @@ const bool DataDrivenMPC::getFinalLinMom(Eigen::Ref<Eigen::VectorXd> finalLinMom
     return true;
 }
 
-const bool DataDrivenMPC::getFinalRPY(Eigen::Ref<Eigen::VectorXd> finalRPY)
+const bool SemiDataDrivenMPC::getFinalRPY(Eigen::Ref<Eigen::VectorXd> finalRPY)
 {
     if (finalRPY.size() != 3)
     {
@@ -353,7 +351,7 @@ const bool DataDrivenMPC::getFinalRPY(Eigen::Ref<Eigen::VectorXd> finalRPY)
     return true;
 }
 
-const bool DataDrivenMPC::getFinalAngMom(Eigen::Ref<Eigen::VectorXd> finalAngMom)
+const bool SemiDataDrivenMPC::getFinalAngMom(Eigen::Ref<Eigen::VectorXd> finalAngMom)
 {
     if (finalAngMom.size() != 3)
     {
@@ -364,7 +362,7 @@ const bool DataDrivenMPC::getFinalAngMom(Eigen::Ref<Eigen::VectorXd> finalAngMom
     return true;
 }
 
-const bool DataDrivenMPC::getThrustHat(Eigen::Ref<Eigen::VectorXd> thrustHat)
+const bool SemiDataDrivenMPC::getThrustHat(Eigen::Ref<Eigen::VectorXd> thrustHat)
 {
     if (thrustHat.size() != m_robot->getNJets())
     {
@@ -376,12 +374,12 @@ const bool DataDrivenMPC::getThrustHat(Eigen::Ref<Eigen::VectorXd> thrustHat)
     return true;
 }
 
-double DataDrivenMPC::getNStatesMPC() const
+double SemiDataDrivenMPC::getNStatesMPC() const
 {
     return m_nStates;
 }
 
-double DataDrivenMPC::getNInputMPC() const
+double SemiDataDrivenMPC::getNInputMPC() const
 {
     return m_nInput;
 }

@@ -104,6 +104,7 @@ protected:
     Eigen::MatrixXd m_linearMatrix; /**< The constraint matrix. */
     Eigen::VectorXd m_lowerBound; /**< The lower bound vector. */
     Eigen::VectorXd m_upperBound; /**< The upper bound vector. */
+    std::shared_ptr<JetModel> m_jetModel; /**< Shared pointer to the JetModel. */
 };
 
 #endif

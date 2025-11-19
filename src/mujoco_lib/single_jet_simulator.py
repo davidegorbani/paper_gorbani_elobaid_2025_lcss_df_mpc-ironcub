@@ -16,6 +16,7 @@ class SingleJetSimulator:
         # JetModelTotal expects num_jets, even if it's 1, to correctly handle tensor shapes.
         self.jet_model = JetModelTotal(model_path=model_path, num_jets=1)
         self.current_thrust = torch.tensor([initial_thrust], dtype=torch.float32)
+        self.current_thrust_dot = torch.tensor([0], dtype=torch.float32)
         self.current_throttle = torch.tensor([initial_throttle], dtype=torch.float32)
 
     def set_throttle(self, throttle_value):
@@ -35,6 +36,15 @@ class SingleJetSimulator:
             float: The current thrust value.
         """
         return self.current_thrust.item()
+    
+    def get_thrust_dot(self):
+        """
+        Gets the current rate of change of thrust of the turbine.
+
+        Returns:
+            float: The current thrust rate value.
+        """
+        return self.current_thrust_dot.item()
 
     def advance(self):
         """
@@ -45,7 +55,7 @@ class SingleJetSimulator:
         # current_thrusts_all_jets should be self.current_thrust (already a tensor [thrust_val])
         # current_throttles_all_jets should be self.current_throttle (already a tensor [throttle_val])
         
-        next_thrust, _ = self.jet_model.get_state(
+        next_thrust, self.current_thrust_dot = self.jet_model.get_state(
             self.current_thrust, 
             self.current_throttle, 
             self.dt

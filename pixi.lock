@@ -99,7 +99,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/importlib_resources-6.5.2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/ipopt-3.14.17-h7fd866c_2.conda
       - conda: git+https://github.com/ami-iit/ironcub-models?tag=v0.0.2#a33e518b78d2e26c621c0454aa1f9f22a6e21f7b
-        subdir: linux-64
+        build: hb0f4dca_0
       - conda: https://conda.anaconda.org/conda-forge/linux-64/irrlicht-1.8.5-hcce6d95_5.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/jasper-4.2.8-he3c4edf_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jinja2-3.1.6-pyhd8ed1ab_0.conda
@@ -5273,7 +5273,7 @@ packages:
 - conda: git+https://github.com/ami-iit/ironcub-models?tag=v0.0.2#a33e518b78d2e26c621c0454aa1f9f22a6e21f7b
   name: ironcub-models
   version: 0.0.2
-  build: hbf21a9e_0
+  build: hb0f4dca_0
   subdir: linux-64
   depends:
   - ergocub-models

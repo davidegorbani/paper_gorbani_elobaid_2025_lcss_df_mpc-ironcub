@@ -1,7 +1,7 @@
 #include "FlightControlUtils.h"
-#include <dataDrivenMPC/DDconstant.h>
-#include <dataDrivenMPC/costsDDMPC.h>
 #include <fstream>
+#include <semiDataDrivenMPC/DDconstant.h>
+#include <semiDataDrivenMPC/costsDDMPC.h>
 
 namespace DDMPC
 {
@@ -14,8 +14,10 @@ ReferenceTrackingCost::ReferenceTrackingCost(const unsigned int nVar,
     m_nStates = nStates;
     m_nIter = nIter;
     m_weightCoMPos.resize(3);
+    m_weightCoMPosError.resize(3);
     m_weightLinMom.resize(3);
     m_weightRPY.resize(3);
+    m_weightRPYError.resize(3);
     m_weightAngMom.resize(3);
     m_initialCoMPos.resize(3);
     m_initialRPY.resize(3);
@@ -29,8 +31,11 @@ const bool ReferenceTrackingCost::readConfigParameters(
 {
     auto ptr = parametersHandler.lock();
     bool ok = getParameterAndCheckSize(parametersHandler, "weightCoMPos", m_weightCoMPos);
+    ok = ok
+         && getParameterAndCheckSize(parametersHandler, "weightCoMPosError", m_weightCoMPosError);
     ok = ok && getParameterAndCheckSize(parametersHandler, "weightLinMom", m_weightLinMom);
     ok = ok && getParameterAndCheckSize(parametersHandler, "weightRPY", m_weightRPY);
+    ok = ok && getParameterAndCheckSize(parametersHandler, "weightRPYError", m_weightRPYError);
     ok = ok && getParameterAndCheckSize(parametersHandler, "weightAngMom", m_weightAngMom);
     double periodMPC;
     if (!ptr->getParameter("periodMPC", periodMPC))
@@ -442,12 +447,12 @@ const bool ThrottleInitialValueCost::readConfigParameters(
         yError() << "Parameter 'nIter' not found in the config file.";
         return false;
     }
-    if (!ptr->getParameter("weightInitialThrottle", m_weightThrottle))
+    if (!ptr->getParameter("weightThrottle", m_weightThrottle))
     {
         yError() << "Parameter 'weightThrottle' not found in the config file.";
         return false;
     }
-    if (!ptr->getParameter("weightInitialThrust", m_weightThrust))
+    if (!ptr->getParameter("weightThrust", m_weightThrust))
     {
         yError() << "Parameter 'weightThrottle' not found in the config file.";
         return false;

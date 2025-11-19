@@ -1,6 +1,6 @@
 #include "FlightControlUtils.h"
-#include <dataDrivenMPC/DDconstant.h>
-#include <dataDrivenMPC/systemDynamicsDDMPC.h>
+#include <semiDataDrivenMPC/DDconstant.h>
+#include <semiDataDrivenMPC/systemDynamicsDDMPC.h>
 #define EIGEN_INITIALIZE_MATRICES_BY_NAN
 
 AngularMomentumDynamicDD::AngularMomentumDynamicDD(const int nStates,
@@ -94,8 +94,10 @@ const bool AngularMomentumDynamicDD::computeAngularMomentumMatrices()
     m_BSystemJoints.block(angMomIdx[0], deltaJointIdx[0], angMomIdx.size(), deltaJointIdx.size())
         = m_lambdaAngB;
 
-    // m_cSystem.segment(angMomIdx[0], angMomIdx.size())
-    //     += m_robotReference->getMatrixAmomJets(true).bottomRows(3) * m_thrustMean;
+    // rpyError_{k+1} = rpyError_{k} + dt * (rpy_{k} - rpy_{k}^{ref})
+    m_ASystem.block(rpyErrorIdx[0], rpyIdx[0], rpyErrorIdx.size(), rpyIdx.size())
+        = Eigen::MatrixXd::Identity(rpyErrorIdx.size(), rpyIdx.size());
+    m_cSystem.segment(rpyErrorIdx[0], rpyErrorIdx.size()) = -m_rpyInit;
 
     return true;
 }
@@ -304,6 +306,11 @@ const bool LinearMomentumDynamicDD::computeLinearMomentumMatrices(QPInput& qpInp
     m_cSystem.segment(linMomIdx[0], linMomIdx.size())
         += m_trajectoryManager.getCurrentValue("alphaGravity")[0] * m_robotReference->getTotalMass()
            * m_wRb.transpose() * iDynTree::toEigen(m_robotReference->getGravity());
+
+    // err_{position, k+1} = err_{position, k} + dt * (CoM_{k} - CoM_{ref, k})
+    m_ASystem.block(positionErrorIdx[0], CoMPosIdx[0], positionErrorIdx.size(), CoMPosIdx.size())
+        = Eigen::MatrixXd::Identity(positionErrorIdx.size(), CoMPosIdx.size());
+    m_cSystem.segment(positionErrorIdx[0], positionErrorIdx.size()) = -qpInput.getPosCoMReference();
 
     qpInput.setAlphaGravity(m_trajectoryManager.getCurrentValue("alphaGravity")[0]);
     m_trajectoryManager.advanceTrajectory();

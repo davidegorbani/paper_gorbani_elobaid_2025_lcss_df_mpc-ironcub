@@ -10,6 +10,8 @@ constexpr std::array<int, 3> CoMPosIdx = {0, 1, 2};
 constexpr std::array<int, 3> linMomIdx = {3, 4, 5};
 constexpr std::array<int, 3> rpyIdx = {6, 7, 8};
 constexpr std::array<int, 3> angMomIdx = {9, 10, 11};
+constexpr std::array<int, 3> positionErrorIdx = {12, 13, 14};
+constexpr std::array<int, 3> rpyErrorIdx = {15, 16, 17};
 
 constexpr std::array<int, N_THRUSTS> thrustHatIdx = {0, 1, 2, 3};
 constexpr std::array<int, N_THRUSTS> thrustHatDotIdx = {4, 5, 6, 7};

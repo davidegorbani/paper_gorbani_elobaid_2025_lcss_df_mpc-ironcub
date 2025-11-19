@@ -1,6 +1,6 @@
 #include <FlightControlUtils.h>
-#include <dataDrivenMPC/DDconstant.h>
-#include <dataDrivenMPC/constraintsDDMPC.h>
+#include <semiDataDrivenMPC/DDconstant.h>
+#include <semiDataDrivenMPC/constraintsDDMPC.h>
 
 namespace DDMPC
 {
@@ -209,6 +209,10 @@ bool ConstraintInitialStateDD::updateInitialState(QPInput& qpInput)
     m_initialState.segment(rpyIdx[0], rpyIdx.size()) = m_rpyUnwrapped;
     m_initialState.segment(angMomIdx[0], angMomIdx.size())
         = m_robot->getMomentum(true).bottomRows(3);
+    m_initialState.segment(positionErrorIdx[0], positionErrorIdx.size())
+        = m_robot->getPositionCoM() - qpInput.getPosCoMReference();
+    m_initialState.segment(rpyErrorIdx[0], rpyErrorIdx.size())
+        = m_rpyUnwrapped - qpInput.getRPYReference();
     return true;
 }
 
@@ -423,15 +427,13 @@ ThrustContraintDD::ThrustContraintDD(const int nVar,
                                      const int nStates,
                                      const int nIter,
                                      const int nSmallSteps,
-                                     const int ctrlHorizon,
-                                     const int thrustInitPosition)
+                                     const int ctrlHorizon)
     : IQPConstraint(nVar, N_THRUSTS * (ctrlHorizon - nSmallSteps + 1))
 {
     m_nIter = nIter;
     m_nSmallSteps = nSmallSteps;
     m_nStates = nStates;
     m_ctrlHorizon = ctrlHorizon;
-    m_thrustInitPosition = thrustInitPosition;
 }
 
 const bool ThrustContraintDD::readConfigParameters(
@@ -797,105 +799,6 @@ const bool HankleMatrixConstraint::configureVectorsCollectionServer(QPInput& qpI
 const bool
 HankleMatrixConstraint::populateVectorsCollection(QPInput& qpInput,
                                                   const Eigen::Ref<Eigen::VectorXd> qpSolution)
-{
-    return true;
-}
-
-ArtificialEquilibriumConstraint::ArtificialEquilibriumConstraint(
-    const int nVar,
-    const int nStates,
-    const int nIter,
-    const int nArtificialEquilibriumStates,
-    const int ArtificialEquilibriumStatesInitPosition)
-    : IQPConstraint(nVar, nArtificialEquilibriumStates)
-{
-    m_ArtificialEquilibriumStatesInitPosition = ArtificialEquilibriumStatesInitPosition;
-    m_nArtificialEquilibriumStates = nArtificialEquilibriumStates;
-    m_nIter = nIter;
-    m_nStates = nStates;
-    std::cout << "ArtificialEquilibriumConstraint created with nArtificialEquilibriumStates: "
-              << m_nArtificialEquilibriumStates << std::endl;
-}
-
-const bool ArtificialEquilibriumConstraint::readConfigParameters(
-    std::weak_ptr<BipedalLocomotion::ParametersHandler::IParametersHandler> parametersHandler,
-    QPInput& qpInput)
-{
-    return true;
-}
-
-void ArtificialEquilibriumConstraint::configureDynVectorsSize(QPInput& qpInput)
-{
-}
-
-const bool ArtificialEquilibriumConstraint::computeConstraintsMatrixAndBounds(QPInput& qpInput)
-{
-    if (m_firstIteration)
-    {
-        int constraintIdx = 0;
-        // CoM_{L} = x_{s, com}
-        m_linearMatrix
-            .block(constraintIdx,
-                   m_nStates * m_nIter + CoMPosIdx[0],
-                   CoMPosIdx.size(),
-                   CoMPosIdx.size())
-            .setIdentity();
-        m_linearMatrix.block(constraintIdx,
-                             m_ArtificialEquilibriumStatesInitPosition,
-                             CoMPosIdx.size(),
-                             CoMPosIdx.size())
-            = -Eigen::MatrixXd::Identity(CoMPosIdx.size(), CoMPosIdx.size());
-        constraintIdx += CoMPosIdx.size();
-        // linMom_{L} = x_{s, linMom}
-        m_linearMatrix
-            .block(constraintIdx,
-                   m_nStates * m_nIter + linMomIdx[0],
-                   linMomIdx.size(),
-                   linMomIdx.size())
-            .setIdentity();
-        m_linearMatrix.block(constraintIdx,
-                             m_ArtificialEquilibriumStatesInitPosition + constraintIdx,
-                             linMomIdx.size(),
-                             linMomIdx.size())
-            = -Eigen::MatrixXd::Identity(linMomIdx.size(), linMomIdx.size());
-        constraintIdx += linMomIdx.size();
-        // rpy_{L} = x_{s, rpy}
-        m_linearMatrix
-            .block(constraintIdx, m_nStates * m_nIter + rpyIdx[0], rpyIdx.size(), rpyIdx.size())
-            .setIdentity();
-        m_linearMatrix.block(constraintIdx,
-                             m_ArtificialEquilibriumStatesInitPosition + constraintIdx,
-                             rpyIdx.size(),
-                             rpyIdx.size())
-            = -Eigen::MatrixXd::Identity(rpyIdx.size(), rpyIdx.size());
-        constraintIdx += rpyIdx.size();
-        // angMom_{L} = x_{s, angMom}
-        m_linearMatrix
-            .block(constraintIdx,
-                   m_nStates * m_nIter + angMomIdx[0],
-                   angMomIdx.size(),
-                   angMomIdx.size())
-            .setIdentity();
-        m_linearMatrix.block(constraintIdx,
-                             m_ArtificialEquilibriumStatesInitPosition + constraintIdx,
-                             angMomIdx.size(),
-                             angMomIdx.size())
-            = -Eigen::MatrixXd::Identity(angMomIdx.size(), angMomIdx.size());
-        m_lowerBound.setZero();
-        m_upperBound.setZero();
-
-        m_firstIteration = false;
-    }
-    return true;
-}
-
-const bool ArtificialEquilibriumConstraint::configureVectorsCollectionServer(QPInput& qpInput)
-{
-    return true;
-}
-
-const bool ArtificialEquilibriumConstraint::populateVectorsCollection(
-    QPInput& qpInput, const Eigen::Ref<Eigen::VectorXd> qpSolution)
 {
     return true;
 }

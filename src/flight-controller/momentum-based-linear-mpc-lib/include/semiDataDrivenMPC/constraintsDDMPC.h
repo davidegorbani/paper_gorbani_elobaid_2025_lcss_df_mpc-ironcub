@@ -178,8 +178,7 @@ public:
                       const int nStates,
                       const int nIter,
                       const int nSmallSteps,
-                      const int ctrlHorizon,
-                      const int thrustInitPosition);
+                      const int ctrlHorizon);
     ~ThrustContraintDD() = default;
 
     const bool readConfigParameters(
@@ -204,7 +203,6 @@ private:
     int m_nSmallSteps;
     int m_counter;
     int m_ratioSmallLargeStepsPeriod;
-    int m_thrustInitPosition;
     double m_thrustMaxValue;
     double m_thrustMinValue;
     bool m_firstIteriation{true};
@@ -274,37 +272,6 @@ private:
     std::shared_ptr<BipedalLocomotion::YarpUtilities::VectorsCollectionServer>
         m_vectorsCollectionServer;
     std::shared_ptr<JetModel> m_jetModel;
-};
-
-class ArtificialEquilibriumConstraint : public IQPConstraint
-{
-public:
-    ArtificialEquilibriumConstraint(const int nVar,
-                                    const int nStates,
-                                    const int nIter,
-                                    const int nArtificialEquilibriumStates,
-                                    const int ArtificialEquilibriumStatesInitPosition);
-    ~ArtificialEquilibriumConstraint() = default;
-
-    const bool readConfigParameters(
-        std::weak_ptr<BipedalLocomotion::ParametersHandler::IParametersHandler> parametersHandler,
-        QPInput& qpInput) override;
-
-    void configureDynVectorsSize(QPInput& qpInput) override;
-
-    const bool computeConstraintsMatrixAndBounds(QPInput& qpInput) override;
-
-    const bool populateVectorsCollection(QPInput& qpInput,
-                                         const Eigen::Ref<Eigen::VectorXd> qpSolution) override;
-
-    const bool configureVectorsCollectionServer(QPInput& qpInput) override;
-
-private:
-    int m_nIter;
-    int m_nStates;
-    int m_nArtificialEquilibriumStates;
-    int m_ArtificialEquilibriumStatesInitPosition;
-    bool m_firstIteration{true};
 };
 
 class ThrustHatConstraint : public IQPConstraint

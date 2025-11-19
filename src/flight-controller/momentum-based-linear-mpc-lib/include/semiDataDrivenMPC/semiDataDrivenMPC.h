@@ -1,12 +1,12 @@
 
-#ifndef DATA_DRIVEN_MPC_H
-#define DATA_DRIVEN_MPC_H
+#ifndef SEMI_DATA_DRIVEN_MPC_H
+#define SEMI_DATA_DRIVEN_MPC_H
 
 #include <IMPCProblem/IMPCProblem.h>
 #include <IMPCProblem/IQPUtilsMPC.h>
 #include <IQPCost.h>
 
-class DataDrivenMPC : public IMPCProblem
+class SemiDataDrivenMPC : public IMPCProblem
 {
 public:
     const bool setHankleMatrices(const std::vector<std::vector<double>>& inptuData,
@@ -76,4 +76,4 @@ private:
     Eigen::VectorXd m_finalState;
 };
 
-#endif // DATA_DRIVEN_VARIABLE_SAMPLING_MPC_H
+#endif // SEMI_DATA_DRIVEN_MPC_H

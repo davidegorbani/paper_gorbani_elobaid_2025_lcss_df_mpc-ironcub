@@ -222,7 +222,9 @@ class MujocoSim:
         Returns:
             A NumPy array of 4 thrust values.
         """
-        return self._estimated_thrust
+        # uniform noise between -0.5 and 0.5
+        noise = np.random.uniform(-0.5, 0.5, 4)
+        return self._estimated_thrust + noise
     
     def get_estimated_thrust_nn(self):
         """
